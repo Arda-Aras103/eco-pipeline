@@ -9,6 +9,11 @@ import (
 type GitLabPayload struct {
 	ObjectKind string `json:"object_kind"`
 	ProjectID  int    `json:"project_id"`
+
+	ObjectAttributes struct {
+		IID   int    `json:"iid"`
+		State string `json:"state"`
+	} `json:"object_attribute"`
 }
 
 func gitlabWebhookHandler(writing http.ResponseWriter, request *http.Request) {
@@ -22,6 +27,8 @@ func gitlabWebhookHandler(writing http.ResponseWriter, request *http.Request) {
 	json.NewDecoder(request.Body).Decode(&payload)
 
 	if payload.ObjectKind == "merge_request" {
-		fmt.Printf("Project ID: %d ", payload.ProjectID)
+		if payload.ObjectAttributes.State == "opened" {
+			fmt.Printf("MR ID: %d ", payload.ObjectAttributes.IID)
+		}
 	}
 }
